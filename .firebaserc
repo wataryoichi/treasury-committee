@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "treasury-committee"
+  },
+  "targets": {
+    "treasury-committee": {
+      "hosting": {
+        "treasury-committee": [
+          "treasury-committee"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
