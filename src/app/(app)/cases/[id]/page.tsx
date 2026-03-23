@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCase } from "@/hooks/use-cases";
 import { useRunLauncher, useLatestRun } from "@/hooks/use-run";
@@ -185,25 +185,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                 )}
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {steps.map((step: RunStep) => (
-                    <div key={step.id} className="flex items-center gap-3 py-1">
-                      <div className={`h-2 w-2 rounded-full ${
-                        step.status === "completed" ? "bg-green-500" :
-                        step.status === "running" ? "bg-yellow-500 animate-pulse" :
-                        step.status === "failed" ? "bg-red-500" :
-                        "bg-gray-300"
-                      }`} />
-                      <Badge variant={step.status === "completed" ? "default" : step.status === "running" ? "secondary" : "outline"} className="w-16 justify-center text-xs">
-                        {STATUS_LABELS[step.status] ?? step.status}
-                      </Badge>
-                      <span className="text-sm font-medium">
-                        {PERSONA_ROLE_LABELS[step.personaKey as PersonaRole] ?? step.personaKey}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {STEP_LABELS[step.stepType as StepType] ?? step.stepType}
-                      </span>
-                    </div>
+                    <StepItem key={step.id} step={step} />
                   ))}
                 </div>
               </CardContent>
@@ -237,6 +221,57 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           )}
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function StepItem({ step }: { step: RunStep }) {
+  const [open, setOpen] = useState(false);
+  const hasOutput = step.status === "completed" && step.outputJson;
+
+  function formatOutput(raw: string): string {
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === "string") return parsed;
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return raw;
+    }
+  }
+
+  return (
+    <div className="border rounded-lg">
+      <button
+        type="button"
+        onClick={() => hasOutput && setOpen(!open)}
+        className={`flex items-center gap-3 py-2 px-3 w-full text-left ${hasOutput ? "cursor-pointer hover:bg-accent" : ""}`}
+      >
+        <div className={`h-2 w-2 rounded-full shrink-0 ${
+          step.status === "completed" ? "bg-green-500" :
+          step.status === "running" ? "bg-yellow-500 animate-pulse" :
+          step.status === "failed" ? "bg-red-500" :
+          "bg-gray-300"
+        }`} />
+        <Badge variant={step.status === "completed" ? "default" : step.status === "running" ? "secondary" : "outline"} className="w-16 justify-center text-xs shrink-0">
+          {STATUS_LABELS[step.status] ?? step.status}
+        </Badge>
+        <span className="text-sm font-medium">
+          {PERSONA_ROLE_LABELS[step.personaKey as PersonaRole] ?? step.personaKey}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {STEP_LABELS[step.stepType as StepType] ?? step.stepType}
+        </span>
+        {hasOutput && (
+          <span className="text-xs text-muted-foreground ml-auto">{open ? "▼" : "▶"}</span>
+        )}
+      </button>
+      {open && hasOutput && (
+        <div className="px-3 pb-3 border-t">
+          <pre className="text-xs whitespace-pre-wrap bg-muted p-3 rounded mt-2 max-h-96 overflow-y-auto">
+            {formatOutput(step.outputJson!)}
+          </pre>
+        </div>
+      )}
     </div>
   );
 }

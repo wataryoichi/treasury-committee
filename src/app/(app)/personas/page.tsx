@@ -1,7 +1,8 @@
 "use client";
 
 import { usePersonas } from "@/hooks/use-personas";
-import { PersonaConfig } from "@/lib/types";
+import { useSettings } from "@/hooks/use-settings";
+import { PersonaConfig, PROVIDER_MODELS } from "@/lib/types";
 import { PERSONA_ROLE_LABELS } from "@/lib/ai/personas";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -22,6 +24,7 @@ import type { PersonaRole } from "@/lib/types";
 
 export default function PersonasPage() {
   const { personas, isLoading, updatePersona } = usePersonas();
+  const { settings } = useSettings();
 
   const handleToggle = async (persona: PersonaConfig, enabled: boolean) => {
     if (persona.key === "chair") {
@@ -46,6 +49,8 @@ export default function PersonasPage() {
           <PersonaCard
             key={persona.key}
             persona={persona}
+            provider={settings?.provider ?? "dummy"}
+            defaultModel={settings?.model ?? ""}
             onToggle={handleToggle}
             onUpdate={updatePersona}
           />
@@ -57,19 +62,30 @@ export default function PersonasPage() {
 
 function PersonaCard({
   persona,
+  provider,
+  defaultModel,
   onToggle,
   onUpdate,
 }: {
   persona: PersonaConfig;
+  provider: string;
+  defaultModel: string;
   onToggle: (p: PersonaConfig, enabled: boolean) => void;
   onUpdate: (key: string, updates: Partial<PersonaConfig>) => Promise<void>;
 }) {
   const [editPrompt, setEditPrompt] = useState(persona.systemPrompt);
+  const [editModelOverride, setEditModelOverride] = useState(persona.modelOverride ?? "");
   const [open, setOpen] = useState(false);
 
+  const showModelOverride = provider === "openrouter";
+  const models = PROVIDER_MODELS.openrouter ?? [];
+
   const handleSave = async () => {
-    await onUpdate(persona.key, { systemPrompt: editPrompt });
-    toast.success("プロンプトを更新しました");
+    await onUpdate(persona.key, {
+      systemPrompt: editPrompt,
+      modelOverride: editModelOverride || undefined,
+    });
+    toast.success("設定を更新しました");
     setOpen(false);
   };
 
@@ -88,19 +104,62 @@ function PersonaCard({
           <Badge variant="outline" className="mr-1">
             {PERSONA_ROLE_LABELS[persona.key as PersonaRole] ?? persona.key}
           </Badge>
+          {persona.modelOverride && (
+            <Badge variant="secondary" className="text-xs">
+              {persona.modelOverride}
+            </Badge>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground line-clamp-2">{persona.roleDescription}</p>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={<Button variant="outline" size="sm" className="w-full" />}>
-              プロンプト編集
+            設定編集
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{persona.displayName} - システムプロンプト</DialogTitle>
+              <DialogTitle>{persona.displayName}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
+              {showModelOverride && (
+                <div className="space-y-2">
+                  <Label>モデル上書き（空欄＝デフォルト: {defaultModel}）</Label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditModelOverride("")}
+                      className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
+                        !editModelOverride
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-input hover:bg-accent"
+                      }`}
+                    >
+                      デフォルト
+                    </button>
+                    {models.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setEditModelOverride(m)}
+                        className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
+                          editModelOverride === m
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-input hover:bg-accent"
+                        }`}
+                      >
+                        {m.split("/").pop()}
+                      </button>
+                    ))}
+                  </div>
+                  <Input
+                    value={editModelOverride}
+                    onChange={(e) => setEditModelOverride(e.target.value)}
+                    placeholder="例: anthropic/claude-sonnet-4"
+                    className="text-sm"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>システムプロンプト</Label>
                 <Textarea

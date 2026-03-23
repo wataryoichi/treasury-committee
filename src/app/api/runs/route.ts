@@ -42,7 +42,15 @@ async function executeRun(runId: string, caseData: Case) {
     const modelSettings = settingsDoc.exists
       ? ({ id: settingsDoc.id, ...settingsDoc.data() } as ModelSettings)
       : { id: "model", provider: "dummy" as const, apiKey: "", model: "dummy", baseUrl: "", temperature: 0.5, maxTokens: 4096, updatedAt: "" };
-    const llm = createLLMClient(modelSettings);
+    const defaultLlm = createLLMClient(modelSettings);
+
+    // Create per-persona LLM client (uses modelOverride if set and provider is openrouter)
+    function getLlmForPersona(persona: PersonaConfig) {
+      if (persona.modelOverride && modelSettings.provider === "openrouter") {
+        return createLLMClient({ ...modelSettings, model: persona.modelOverride });
+      }
+      return defaultLlm;
+    }
 
     // Load all personas, then filter/sort in code to avoid composite index
     const personaSnap = await personasCollection().get();
@@ -88,7 +96,7 @@ async function executeRun(runId: string, caseData: Case) {
     // Step 1: Chair opening
     if (chair) {
       const step = await createStep(runId, "chair_opening", "chair");
-      const res = await llm.complete(chair.systemPrompt, `以下のケースについて論点を定義してください:\n${caseContext}`);
+      const res = await getLlmForPersona(chair).complete(chair.systemPrompt, `以下のケースについて論点を定義してください:\n${caseContext}`);
       allOutputs["chair_opening"] = res.content;
       await completeStep(runId, step.id, res.content);
     }
@@ -96,7 +104,7 @@ async function executeRun(runId: string, caseData: Case) {
     // Step 2: Specialist views
     for (const persona of specialists) {
       const step = await createStep(runId, "specialist_view", persona.key);
-      const res = await llm.complete(
+      const res = await getLlmForPersona(persona).complete(
         persona.systemPrompt,
         `以下のケースについて専門的見解を述べてください:\n${caseContext}\n\n議長の論点:\n${allOutputs["chair_opening"] ?? ""}`
       );
@@ -111,7 +119,7 @@ async function executeRun(runId: string, caseData: Case) {
         .filter(([k]) => k.startsWith("specialist_") && !k.includes(persona.key))
         .map(([k, v]) => `${k}: ${v}`)
         .join("\n\n");
-      const res = await llm.complete(
+      const res = await getLlmForPersona(persona).complete(
         persona.systemPrompt,
         `他の専門家の見解に対して反論・補足してください:\n${othersViews}`
       );
@@ -126,7 +134,7 @@ async function executeRun(runId: string, caseData: Case) {
       const allViews = Object.entries(allOutputs)
         .map(([k, v]) => `${k}: ${v}`)
         .join("\n\n");
-      const res = await llm.complete(
+      const res = await getLlmForPersona(riskOfficer).complete(
         riskOfficer.systemPrompt,
         `全体の議論を踏まえ、red flagsを整理してください:\n${allViews}`
       );
@@ -140,7 +148,7 @@ async function executeRun(runId: string, caseData: Case) {
       const allViews = Object.entries(allOutputs)
         .map(([k, v]) => `${k}: ${v}`)
         .join("\n\n");
-      const res = await llm.complete(
+      const res = await getLlmForPersona(chair).complete(
         chair.systemPrompt,
         `全専門家の見解・反論・リスク評価を統合し、最終提案を作成してください:\n${caseContext}\n\n${allViews}`
       );
@@ -154,7 +162,7 @@ async function executeRun(runId: string, caseData: Case) {
       const allContent = Object.entries(allOutputs)
         .map(([k, v]) => `## ${k}\n${v}`)
         .join("\n\n");
-      const res = await llm.complete(
+      const res = await getLlmForPersona(editor).complete(
         editor.systemPrompt,
         `以下の審議内容を最終レポートに整形してください:\n\nケース情報:\n${caseContext}\n\n${allContent}`
       );

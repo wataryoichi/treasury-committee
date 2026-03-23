@@ -36,6 +36,7 @@ export interface PersonaConfig {
   philosophy: string;
   outputStyle: string;
   systemPrompt: string;
+  modelOverride?: string;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;

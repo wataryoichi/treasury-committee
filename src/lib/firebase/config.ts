@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
-import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,12 +15,5 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-// Connect to emulators in development
-if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_USE_EMULATORS === "true") {
-  try {
-    connectFirestoreEmulator(db, "localhost", 8081);
-    connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
-  } catch {
-    // Already connected
-  }
-}
+// Client-side Firestore emulator is not used - all Firestore access goes through API routes
+// Auth always uses production Firebase Auth (works from any device)

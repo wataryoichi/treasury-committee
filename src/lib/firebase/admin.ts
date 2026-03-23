@@ -20,8 +20,4 @@ if (getApps().length === 0) {
 }
 
 export const adminDb: Firestore = getFirestore(adminApp);
-
-// Connect to emulator if FIRESTORE_EMULATOR_HOST is set
-if (process.env.FIRESTORE_EMULATOR_HOST) {
-  adminDb.settings({ host: process.env.FIRESTORE_EMULATOR_HOST, ssl: false });
-}
+// firebase-admin auto-detects FIRESTORE_EMULATOR_HOST env var

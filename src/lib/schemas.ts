@@ -25,6 +25,7 @@ export const personaUpdateSchema = z.object({
   philosophy: z.string().optional(),
   outputStyle: z.string().optional(),
   systemPrompt: z.string().optional(),
+  modelOverride: z.string().optional(),
 });
 
 export const runCreateSchema = z.object({

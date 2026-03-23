@@ -12,10 +12,9 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-  getAuth,
   type User,
 } from "firebase/auth";
-import "@/lib/firebase/config"; // ensure Firebase app is initialized
+import { auth } from "@/lib/firebase/config";
 
 interface AuthContextValue {
   user: User | null;
@@ -31,8 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const firebaseAuth = getAuth();
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (u) => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
     });
@@ -40,13 +38,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const firebaseAuth = getAuth();
-    await signInWithEmailAndPassword(firebaseAuth, email, password);
+    await signInWithEmailAndPassword(auth, email, password);
   }, []);
 
   const signOut = useCallback(async () => {
-    const firebaseAuth = getAuth();
-    await firebaseSignOut(firebaseAuth);
+    await firebaseSignOut(auth);
   }, []);
 
   return (

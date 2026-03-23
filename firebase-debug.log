@@ -1,70 +1,68 @@
-[debug] [2026-03-23T13:26:23.296Z] ----------------------------------------------------------------------
-[debug] [2026-03-23T13:26:23.297Z] Command:       /home/rw/.nvm/versions/node/v22.22.1/bin/node /home/rw/.nvm/versions/node/v22.22.1/bin/firebase emulators:start --project treasury-committee --only auth,firestore
-[debug] [2026-03-23T13:26:23.297Z] CLI Version:   15.11.0
-[debug] [2026-03-23T13:26:23.297Z] Platform:      linux
-[debug] [2026-03-23T13:26:23.297Z] Node Version:  v22.22.1
-[debug] [2026-03-23T13:26:23.298Z] Time:          Mon Mar 23 2026 22:26:23 GMT+0900 (Japan Standard Time)
-[debug] [2026-03-23T13:26:23.298Z] ----------------------------------------------------------------------
+[debug] [2026-03-23T14:26:07.646Z] ----------------------------------------------------------------------
+[debug] [2026-03-23T14:26:07.647Z] Command:       /home/rw/.nvm/versions/node/v22.22.1/bin/node /home/rw/.nvm/versions/node/v22.22.1/bin/firebase emulators:start --project treasury-committee --only auth,firestore
+[debug] [2026-03-23T14:26:07.647Z] CLI Version:   15.11.0
+[debug] [2026-03-23T14:26:07.647Z] Platform:      linux
+[debug] [2026-03-23T14:26:07.648Z] Node Version:  v22.22.1
+[debug] [2026-03-23T14:26:07.648Z] Time:          Mon Mar 23 2026 23:26:07 GMT+0900 (Japan Standard Time)
+[debug] [2026-03-23T14:26:07.648Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2026-03-23T13:26:23.682Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2026-03-23T13:26:23.683Z] > authorizing via signed-in user (wataryoichi@gmail.com)
-[debug] [2026-03-23T13:26:23.709Z] openjdk version "21.0.10" 2026-01-20
+[debug] [2026-03-23T14:26:08.061Z] Object "/emulators" in "firebase.json" has unknown property: {"additionalProperty":"exportOnExit"}
+[debug] [2026-03-23T14:26:08.064Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-23T14:26:08.064Z] > authorizing via signed-in user (wataryoichi@gmail.com)
+[debug] [2026-03-23T14:26:08.087Z] openjdk version "21.0.10" 2026-01-20
 
-[debug] [2026-03-23T13:26:23.710Z] OpenJDK Runtime Environment (build 21.0.10+7-Ubuntu-124.04)
+[debug] [2026-03-23T14:26:08.088Z] OpenJDK Runtime Environment (build 21.0.10+7-Ubuntu-124.04)
 OpenJDK 64-Bit Server VM (build 21.0.10+7-Ubuntu-124.04, mixed mode, sharing)
 
-[debug] [2026-03-23T13:26:23.713Z] Parsed Java major version: 21
+[debug] [2026-03-23T14:26:08.093Z] Parsed Java major version: 21
 [info] i  emulators: Starting emulators: auth, firestore {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth, firestore"}}
-[debug] [2026-03-23T13:26:23.718Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8081}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9150}]},"metadata":{"message":"assigned listening specs for emulators"}}
-[debug] [2026-03-23T13:26:23.720Z] Write emulator hub locator at /tmp/hub-treasury-committee.json
-[debug] [2026-03-23T13:26:23.723Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
-[debug] [2026-03-23T13:26:23.723Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
-[debug] [2026-03-23T13:26:23.723Z] Starting Firestore Emulator with command {"binary":"java","args":["-Djava.net.preferIPv4Stack=true","-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","/home/rw/.cache/firebase/emulators/cloud-firestore-emulator-v1.20.4.jar","--host","127.0.0.1","--port",8081,"--websocket_port",9150,"--project_id","treasury-committee","--rules","/home/rw/src/tma/firestore.rules","--single_project_mode",true],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false,"shell":false,"port":8081} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Djava.net.preferIPv4Stack=true\",\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"/home/rw/.cache/firebase/emulators/cloud-firestore-emulator-v1.20.4.jar\",\"--host\",\"127.0.0.1\",\"--port\",8081,\"--websocket_port\",9150,\"--project_id\",\"treasury-committee\",\"--rules\",\"/home/rw/src/tma/firestore.rules\",\"--single_project_mode\",true],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false,\"shell\":false,\"port\":8081}"}}
+[debug] [2026-03-23T14:26:08.098Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4510}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4100}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4610}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9199}],"firestore":[{"address":"127.0.0.1","family":"IPv4","port":8181}],"firestore.websocket":[{"address":"127.0.0.1","family":"IPv4","port":9151}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2026-03-23T14:26:08.100Z] Write emulator hub locator at /tmp/hub-treasury-committee.json
+[debug] [2026-03-23T14:26:08.103Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2026-03-23T14:26:08.103Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
+[debug] [2026-03-23T14:26:08.103Z] Starting Firestore Emulator with command {"binary":"java","args":["-Djava.net.preferIPv4Stack=true","-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","/home/rw/.cache/firebase/emulators/cloud-firestore-emulator-v1.20.4.jar","--host","127.0.0.1","--port",8181,"--websocket_port",9151,"--project_id","treasury-committee","--rules","/home/rw/src/tma/firestore.rules","--single_project_mode",true],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false,"shell":false,"port":8181} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Djava.net.preferIPv4Stack=true\",\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"/home/rw/.cache/firebase/emulators/cloud-firestore-emulator-v1.20.4.jar\",\"--host\",\"127.0.0.1\",\"--port\",8181,\"--websocket_port\",9151,\"--project_id\",\"treasury-committee\",\"--rules\",\"/home/rw/src/tma/firestore.rules\",\"--single_project_mode\",true],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false,\"shell\":false,\"port\":8181}"}}
 [info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to firestore-debug.log"}}
-[debug] [2026-03-23T13:26:24.822Z] Mar 23, 2026 10:26:24 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start
-INFO: Started WebSocket server on ws://127.0.0.1:9150
- {"metadata":{"emulator":{"name":"firestore"},"message":"Mar 23, 2026 10:26:24 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start\nINFO: Started WebSocket server on ws://127.0.0.1:9150\n"}}
-[debug] [2026-03-23T13:26:24.875Z] 
-API endpoint: http://127.0.0.1:8081 {"metadata":{"emulator":{"name":"firestore"},"message":"\nAPI endpoint: http://127.0.0.1:8081"}}
-[debug] [2026-03-23T13:26:24.876Z] 
+[debug] [2026-03-23T14:26:08.853Z] Mar 23, 2026 11:26:08 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start
+INFO: Started WebSocket server on ws://127.0.0.1:9151
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Mar 23, 2026 11:26:08 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start\nINFO: Started WebSocket server on ws://127.0.0.1:9151\n"}}
+[debug] [2026-03-23T14:26:08.894Z] 
+API endpoint: http://127.0.0.1:8181 {"metadata":{"emulator":{"name":"firestore"},"message":"\nAPI endpoint: http://127.0.0.1:8181"}}
+[debug] [2026-03-23T14:26:08.894Z] 
 Database Edition: STANDARD
 Database Mode: CLOUD_FIRESTORE
 
 If you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:
 
-   export FIRESTORE_EMULATOR_HOST=127.0.0.1:8081
+   export FIRESTORE_EMULATOR_HOST=127.0.0.1:8181
 
 If you are running a Firestore in Datastore Mode project, run:
 
-   export DATASTORE_EMULATOR_HOST=127.0.0.1:8081
+   export DATASTORE_EMULATOR_HOST=127.0.0.1:8181
 
 Note: Support for Datastore Mode is in preview. If you encounter any bugs please file at https://github.com/firebase/firebase-tools/issues.
 Dev App Server is now running.
 
- {"metadata":{"emulator":{"name":"firestore"},"message":"\nDatabase Edition: STANDARD\nDatabase Mode: CLOUD_FIRESTORE\n\nIf you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:\n\n   export FIRESTORE_EMULATOR_HOST=127.0.0.1:8081\n\nIf you are running a Firestore in Datastore Mode project, run:\n\n   export DATASTORE_EMULATOR_HOST=127.0.0.1:8081\n\nNote: Support for Datastore Mode is in preview. If you encounter any bugs please file at https://github.com/firebase/firebase-tools/issues.\nDev App Server is now running.\n\n"}}
-[info] ✔  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
-[debug] [2026-03-23T13:26:28.349Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: connect ECONNREFUSED 127.0.0.1:40001. If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+ {"metadata":{"emulator":{"name":"firestore"},"message":"\nDatabase Edition: STANDARD\nDatabase Mode: CLOUD_FIRESTORE\n\nIf you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:\n\n   export FIRESTORE_EMULATOR_HOST=127.0.0.1:8181\n\nIf you are running a Firestore in Datastore Mode project, run:\n\n   export DATASTORE_EMULATOR_HOST=127.0.0.1:8181\n\nNote: Support for Datastore Mode is in preview. If you encounter any bugs please file at https://github.com/firebase/firebase-tools/issues.\nDev App Server is now running.\n\n"}}
+[info] ✔  firestore: Firestore Emulator UI websocket is running on 9151. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9151."}}
+[debug] [2026-03-23T14:26:12.168Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: connect ECONNREFUSED 127.0.0.1:40001. If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
 [info] 
 ┌─────────────────────────────────────────────────────────────┐
 │ ✔  All emulators ready! It is now safe to connect your app. │
-│ i  View Emulator UI at http://127.0.0.1:4000/               │
+│ i  View Emulator UI at http://127.0.0.1:4100/               │
 └─────────────────────────────────────────────────────────────┘
 
 ┌────────────────┬────────────────┬─────────────────────────────────┐
 │ Emulator       │ Host:Port      │ View in Emulator UI             │
 ├────────────────┼────────────────┼─────────────────────────────────┤
-│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:4000/auth      │
+│ Authentication │ 127.0.0.1:9199 │ http://127.0.0.1:4100/auth      │
 ├────────────────┼────────────────┼─────────────────────────────────┤
-│ Firestore      │ 127.0.0.1:8081 │ http://127.0.0.1:4000/firestore │
+│ Firestore      │ 127.0.0.1:8181 │ http://127.0.0.1:4100/firestore │
 └────────────────┴────────────────┴─────────────────────────────────┘
-  Emulator Hub host: 127.0.0.1 port: 4400
-  Other reserved ports: 4500, 9150
+  Emulator Hub host: 127.0.0.1 port: 4510
+  Other reserved ports: 4610, 9151
 
 Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
  
-[debug] [2026-03-23T13:26:30.965Z] Mar 23, 2026 10:26:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
- {"metadata":{"emulator":{"name":"firestore"},"message":"Mar 23, 2026 10:26:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected non-HTTP/2 connection.\n"}}
-[debug] [2026-03-23T13:26:59.054Z] Mar 23, 2026 10:26:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+[debug] [2026-03-23T14:26:34.250Z] Mar 23, 2026 11:26:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected HTTP/2 connection.
- {"metadata":{"emulator":{"name":"firestore"},"message":"Mar 23, 2026 10:26:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected HTTP/2 connection.\n"}}
+ {"metadata":{"emulator":{"name":"firestore"},"message":"Mar 23, 2026 11:26:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead\nINFO: Detected HTTP/2 connection.\n"}}
