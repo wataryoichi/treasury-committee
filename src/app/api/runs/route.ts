@@ -61,6 +61,8 @@ async function executeRun(runId: string, caseData: Case) {
   const runRef = runsCollection().doc(runId);
   await runRef.update({ status: "running" });
 
+  const allOutputs: Record<string, string> = {};
+
   try {
     // Load model settings
     const settingsDoc = await settingsCollection().doc("model").get();
@@ -106,8 +108,7 @@ async function executeRun(runId: string, caseData: Case) {
     // Item 1: Enriched case context with pre-analysis metrics
     const caseContext = buildEnrichedCaseContext(caseData);
 
-    // Stores for raw outputs (for final report) and compressed outputs (for context passing)
-    const allOutputs: Record<string, string> = {};
+    // Stores for compressed outputs (for context passing)
     const compressedOutputs: Record<string, string> = {};
     let totalPromptTokens = 0;
 
@@ -347,10 +348,16 @@ ${allOutputs["risk_assessment"] ?? ""}`;
 
     console.log(`[Run ${runId}] Completed. Estimated total prompt tokens: ~${totalPromptTokens}`);
   } catch (error) {
+    // Save partial results even on failure
+    const partialReport = Object.keys(allOutputs).length > 0
+      ? Object.entries(allOutputs).map(([k, v]) => `## ${k}\n${v}`).join("\n\n")
+      : undefined;
     await runRef.update({
       status: "failed",
       completedAt: new Date().toISOString(),
       errorMessage: error instanceof Error ? error.message : "Unknown error",
+      rawOutputJson: JSON.stringify(allOutputs),
+      ...(partialReport ? { markdownReport: `# 審議中断（部分結果）\n\nエラー: ${error instanceof Error ? error.message : "Unknown"}\n\n---\n\n${partialReport}` } : {}),
     });
   }
 }

@@ -77,16 +77,91 @@ export type RebuttalOutput = z.infer<typeof RebuttalOutputSchema>;
  */
 export function tryParseJson(raw: string): unknown {
   let cleaned = raw.trim();
-  // Strip markdown code fences
+
+  // Strategy 1: Strip markdown code fences
   const fenceMatch = cleaned.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
   if (fenceMatch) {
-    cleaned = fenceMatch[1].trim();
+    try {
+      return JSON.parse(fenceMatch[1].trim());
+    } catch { /* try next strategy */ }
   }
+
+  // Strategy 2: Find JSON object in the text
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      return JSON.parse(jsonMatch[0]);
+    } catch { /* try next strategy */ }
+  }
+
+  // Strategy 3: Direct parse
   try {
     return JSON.parse(cleaned);
   } catch {
-    return null;
+    // Strategy 4: Extract structured data from markdown
+    return extractFromMarkdown(cleaned);
   }
+}
+
+/**
+ * Best-effort extraction of structured fields from markdown/text output.
+ * Returns a partial object that may pass schema validation.
+ */
+function extractFromMarkdown(text: string): Record<string, unknown> | null {
+  const result: Record<string, unknown> = {};
+
+  // Extract summary - look for ### summary or first paragraph
+  const summaryMatch = text.match(/#{1,3}\s*summary\s*\n+([\s\S]*?)(?=\n#{1,3}\s|\n---|\n\n\n)/i)
+    || text.match(/総括[：:]\s*(.*)/);
+  if (summaryMatch) result.summary = summaryMatch[1].trim();
+
+  // Extract key_arguments from bullet points after "key_arguments" header
+  const argSection = text.match(/#{1,3}\s*key_arguments\s*\n+([\s\S]*?)(?=\n#{1,3}\s|\n---|\n\n\n)/i);
+  if (argSection) {
+    const bullets = argSection[1].match(/[-*\d.]+\s+\*?\*?(.+)/g);
+    if (bullets) result.key_arguments = bullets.map(b => b.replace(/^[-*\d.]+\s+\*?\*?/, "").replace(/\*?\*?$/, "").trim());
+  }
+
+  // Extract risks
+  const riskSection = text.match(/#{1,3}\s*risks?\s*\n+([\s\S]*?)(?=\n#{1,3}\s|\n---|\n\n\n)/i);
+  if (riskSection) {
+    const bullets = riskSection[1].match(/[-*\d.]+\s+\*?\*?(.+)/g);
+    if (bullets) result.risks = bullets.map(b => b.replace(/^[-*\d.]+\s+\*?\*?/, "").replace(/\*?\*?$/, "").trim());
+  }
+
+  // Extract recommendation
+  const recMatch = text.match(/#{1,3}\s*recommendation\s*\n+(.+)/i)
+    || text.match(/推奨[：:]\s*(.*)/);
+  if (recMatch) result.recommendation = recMatch[1].trim();
+
+  // Extract confidence
+  const confMatch = text.match(/confidence[：:]\s*([\d.]+)/i)
+    || text.match(/確信度[：:]\s*([\d.]+)/);
+  if (confMatch) result.confidence = parseFloat(confMatch[1]);
+
+  // Extract confidence_rationale
+  const ratMatch = text.match(/confidence_rationale[：:]\s*(.*)/i)
+    || text.match(/確信度の根拠[：:]\s*(.*)/);
+  if (ratMatch) result.confidence_rationale = ratMatch[1].trim();
+
+  // For rebuttals
+  const targetMatch = text.match(/target_persona[：:]\s*(.*)/i)
+    || text.match(/反論対象[：:]\s*(.*)/);
+  if (targetMatch) result.target_persona = targetMatch[1].trim();
+
+  const weakMatch = text.match(/weakest_point[：:]\s*(.*)/i);
+  if (weakMatch) result.weakest_point = weakMatch[1].trim();
+
+  const counterMatch = text.match(/counter_argument[：:]\s*([\s\S]*?)(?=\n#{1,3}\s|evidence|$)/i);
+  if (counterMatch) result.counter_argument = counterMatch[1].trim();
+
+  const evidenceMatch = text.match(/evidence[：:]\s*([\s\S]*?)(?=\n#{1,3}\s|conditions|$)/i);
+  if (evidenceMatch) result.evidence = evidenceMatch[1].trim();
+
+  const condMatch = text.match(/conditions_to_change_mind[：:]\s*(.*)/i);
+  if (condMatch) result.conditions_to_change_mind = condMatch[1].trim();
+
+  return Object.keys(result).length > 0 ? result : null;
 }
 
 /**

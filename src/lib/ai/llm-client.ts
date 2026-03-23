@@ -14,11 +14,14 @@ export interface LLMClient {
 }
 
 export class OpenRouterClient implements LLMClient {
+  private retryCount = 0;
+  private maxRetries = 3;
+
   constructor(
     private apiKey: string,
     private model: string,
     private defaultTemperature: number = 0.5,
-    private maxTokens: number = 4096
+    private maxTokens: number = 8192
   ) {}
 
   async complete(
@@ -43,10 +46,15 @@ export class OpenRouterClient implements LLMClient {
         temperature: temperature ?? this.defaultTemperature,
         max_tokens: this.maxTokens,
       }),
+      signal: AbortSignal.timeout(120_000), // 2 min timeout per call
     });
 
     if (!res.ok) {
       const err = await res.text();
+      // Retry on rate limit or server error
+      if (res.status === 429 || res.status >= 500) {
+        return this.retryComplete(systemPrompt, userMessage, temperature, err, res.status);
+      }
       throw new Error(`OpenRouter API error (${res.status}): ${err}`);
     }
 
@@ -63,6 +71,26 @@ export class OpenRouterClient implements LLMClient {
           }
         : undefined,
     };
+  }
+
+  private async retryComplete(
+    systemPrompt: string,
+    userMessage: string,
+    temperature: number | undefined,
+    lastError: string,
+    statusCode: number,
+  ): Promise<LLMResponse> {
+    this.retryCount++;
+    if (this.retryCount > this.maxRetries) {
+      this.retryCount = 0;
+      throw new Error(`OpenRouter API error after ${this.maxRetries} retries (${statusCode}): ${lastError}`);
+    }
+    const delay = Math.pow(2, this.retryCount) * 1000; // 2s, 4s, 8s
+    console.warn(`[OpenRouter] Retry ${this.retryCount}/${this.maxRetries} after ${delay}ms (status ${statusCode})`);
+    await new Promise((r) => setTimeout(r, delay));
+    const result = await this.complete(systemPrompt, userMessage, temperature);
+    this.retryCount = 0;
+    return result;
   }
 }
 
