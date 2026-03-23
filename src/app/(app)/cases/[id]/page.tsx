@@ -196,9 +196,12 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
 
           {run?.status === "completed" && run.markdownReport && (
             <div className="space-y-4">
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                <a href={`/api/runs/${run.id}/export?full=true`} download className={cn(buttonVariants({ variant: "outline" }))}>
+                  完全版エクスポート
+                </a>
                 <a href={`/api/runs/${run.id}/export`} download className={cn(buttonVariants({ variant: "outline" }))}>
-                  Markdown エクスポート
+                  レポートのみ
                 </a>
               </div>
               <Card>
