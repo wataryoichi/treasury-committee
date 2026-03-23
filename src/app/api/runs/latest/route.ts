@@ -7,22 +7,39 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "caseId is required" }, { status: 400 });
   }
 
-  const snapshot = await runsCollection()
-    .where("caseId", "==", caseId)
-    .orderBy("startedAt", "desc")
-    .limit(1)
-    .get();
+  try {
+    // Fetch all runs for this case, sort in code to avoid composite index
+    const snapshot = await runsCollection()
+      .where("caseId", "==", caseId)
+      .get();
 
-  if (snapshot.empty) {
-    return NextResponse.json({ run: null, steps: [] });
+    if (snapshot.empty) {
+      return NextResponse.json({ run: null, steps: [] });
+    }
+
+    // Sort by startedAt desc in code
+    const runs = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => {
+        const aTime = (a as Record<string, unknown>).startedAt as string || "";
+        const bTime = (b as Record<string, unknown>).startedAt as string || "";
+        return bTime.localeCompare(aTime);
+      });
+
+    const latestRun = runs[0] as Record<string, unknown> & { id: string };
+
+    const stepsSnap = await runStepsCollection(latestRun.id).orderBy("startedAt").get();
+    const steps = stepsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    return NextResponse.json({
+      run: latestRun,
+      steps,
+    });
+  } catch (error) {
+    console.error("Error fetching latest run:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
-
-  const runDoc = snapshot.docs[0];
-  const stepsSnap = await runStepsCollection(runDoc.id).orderBy("startedAt").get();
-  const steps = stepsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-  return NextResponse.json({
-    run: { id: runDoc.id, ...runDoc.data() },
-    steps,
-  });
 }
