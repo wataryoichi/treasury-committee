@@ -1,14 +1,14 @@
 "use client";
 
 import { useSettings } from "@/hooks/use-settings";
-import { LLMProvider, PROVIDER_MODELS } from "@/lib/types";
+import { LLMProvider, PROVIDER_MODELS, OPENROUTER_MODELS, COST_TIER_LABELS, ModelInfo } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
 const PROVIDERS: { value: LLMProvider; label: string; description: string }[] = [
@@ -132,7 +132,11 @@ export default function SettingsPage() {
         </Card>
       )}
 
-      {provider !== "dummy" && (
+      {provider === "openrouter" && (
+        <OpenRouterModelSelector model={model} onSelect={setModel} />
+      )}
+
+      {provider !== "dummy" && provider !== "openrouter" && (
         <Card>
           <CardHeader>
             <CardTitle>モデル</CardTitle>
@@ -201,5 +205,115 @@ export default function SettingsPage() {
         {saving ? "保存中..." : "設定を保存"}
       </Button>
     </div>
+  );
+}
+
+function OpenRouterModelSelector({
+  model,
+  onSelect,
+}: {
+  model: string;
+  onSelect: (id: string) => void;
+}) {
+  const [filterProvider, setFilterProvider] = useState<string>("all");
+
+  const providers = useMemo(() => {
+    const set = new Set(OPENROUTER_MODELS.map((m) => m.provider));
+    return ["all", ...Array.from(set)];
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (filterProvider === "all") return OPENROUTER_MODELS;
+    return OPENROUTER_MODELS.filter((m) => m.provider === filterProvider);
+  }, [filterProvider]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, ModelInfo[]>();
+    for (const m of filtered) {
+      const list = map.get(m.provider) ?? [];
+      list.push(m);
+      map.set(m.provider, list);
+    }
+    return map;
+  }, [filtered]);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>モデル</CardTitle>
+        <CardDescription>プロバイダーで絞り込み、モデルを選択</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-1.5">
+          {providers.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setFilterProvider(p)}
+              className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
+                filterProvider === p
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-input hover:bg-accent"
+              }`}
+            >
+              {p === "all" ? "すべて" : p}
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-4">
+          {Array.from(grouped.entries()).map(([providerName, models]) => (
+            <div key={providerName}>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                {providerName}
+              </h4>
+              <div className="space-y-1">
+                {models.map((m) => {
+                  const tier = COST_TIER_LABELS[m.costTier];
+                  const isSelected = model === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => onSelect(m.id)}
+                      className={`flex items-center w-full rounded-lg border p-3 text-left transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/5"
+                          : "border-input hover:bg-accent"
+                      }`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{m.name}</span>
+                          <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${tier.color}`}>
+                            {tier.label}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          In ${m.inputPricePerM}/M  Out ${m.outputPricePerM}/M  ctx {m.contextK >= 1000 ? `${(m.contextK / 1000).toFixed(0)}M` : `${m.contextK}K`}
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <Badge className="shrink-0 ml-2">選択中</Badge>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-2 pt-2 border-t">
+          <Label>カスタムモデル名</Label>
+          <Input
+            value={model}
+            onChange={(e) => onSelect(e.target.value)}
+            placeholder="provider/model-name"
+            className="text-sm"
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

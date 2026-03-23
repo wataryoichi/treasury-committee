@@ -2,7 +2,7 @@
 
 import { usePersonas } from "@/hooks/use-personas";
 import { useSettings } from "@/hooks/use-settings";
-import { PersonaConfig, PROVIDER_MODELS } from "@/lib/types";
+import { PersonaConfig, OPENROUTER_MODELS, COST_TIER_LABELS } from "@/lib/types";
 import { PERSONA_ROLE_LABELS } from "@/lib/ai/personas";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -78,7 +78,6 @@ function PersonaCard({
   const [open, setOpen] = useState(false);
 
   const showModelOverride = provider === "openrouter";
-  const models = PROVIDER_MODELS.openrouter ?? [];
 
   const handleSave = async () => {
     await onUpdate(persona.key, {
@@ -125,37 +124,38 @@ function PersonaCard({
               {showModelOverride && (
                 <div className="space-y-2">
                   <Label>モデル上書き（空欄＝デフォルト: {defaultModel}）</Label>
-                  <div className="flex flex-wrap gap-1.5 mb-2">
+                  <div className="max-h-48 overflow-y-auto space-y-1 border rounded-lg p-2">
                     <button
                       type="button"
                       onClick={() => setEditModelOverride("")}
-                      className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
-                        !editModelOverride
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input hover:bg-accent"
+                      className={`flex items-center w-full rounded p-2 text-left text-sm transition-colors ${
+                        !editModelOverride ? "bg-primary/10 font-medium" : "hover:bg-accent"
                       }`}
                     >
-                      デフォルト
+                      デフォルト（{defaultModel}）
                     </button>
-                    {models.map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => setEditModelOverride(m)}
-                        className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
-                          editModelOverride === m
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-input hover:bg-accent"
-                        }`}
-                      >
-                        {m.split("/").pop()}
-                      </button>
-                    ))}
+                    {OPENROUTER_MODELS.map((m) => {
+                      const tier = COST_TIER_LABELS[m.costTier];
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => setEditModelOverride(m.id)}
+                          className={`flex items-center gap-2 w-full rounded p-2 text-left transition-colors ${
+                            editModelOverride === m.id ? "bg-primary/10 font-medium" : "hover:bg-accent"
+                          }`}
+                        >
+                          <span className="text-sm">{m.name}</span>
+                          <span className={`rounded px-1 py-0.5 text-[10px] font-bold ${tier.color}`}>{tier.label}</span>
+                          <span className="text-[10px] text-muted-foreground ml-auto">${m.inputPricePerM}/M</span>
+                        </button>
+                      );
+                    })}
                   </div>
                   <Input
                     value={editModelOverride}
                     onChange={(e) => setEditModelOverride(e.target.value)}
-                    placeholder="例: anthropic/claude-sonnet-4"
+                    placeholder="カスタム: provider/model-name"
                     className="text-sm"
                   />
                 </div>
